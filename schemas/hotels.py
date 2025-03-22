@@ -1,0 +1,11 @@
+from pydantic import BaseModel, Field
+
+
+class Hotel(BaseModel):
+    title: str = Field(description='Название отеля')
+    level: str = Field(description="Уровень отеля")
+
+
+class HotelUpdate(BaseModel):
+    title: str | None = Field(description='Название отеля', default=None)
+    level: str | None = Field(description='Уровень отеля', default=None)

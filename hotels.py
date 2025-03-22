@@ -1,5 +1,5 @@
-from fastapi import Query, Path, Body, HTTPException, APIRouter
-
+from fastapi import Query, Path, HTTPException, APIRouter
+from schemas.hotels import HotelUpdate, Hotel
 
 router = APIRouter(prefix="/hotel", tags=["Отели"])
 
@@ -7,7 +7,12 @@ router = APIRouter(prefix="/hotel", tags=["Отели"])
 hotels = [
     {"id": 1, "title": "Sochi", "level": "4 star"},
     {"id": 2, "title": "Дубай", "level": "5 star"},
-    {"id": 3, "title": "Сыктывкар", "level": "2 star"},
+    {"id": 3, "title": "Мальдивы", "level": "5 star"},
+    {"id": 4, "title": "Геленджик", "level": "3 star"},
+    {"id": 5, "title": "Москва", "level": "5 star"},
+    {"id": 6, "title": "Казань", "level": "4 star"},
+    {"id": 7, "title": "Санкт-Петербург", "level": "3 star"},
+    {"id": 8, "title": "Сыктывкар", "level": "2 star"},
 ]
 
 
@@ -15,7 +20,9 @@ hotels = [
 def get_hotels(
                 id_hotel: int | None = Query(default=None, description='ID отеля'),
                 title_hotel: str | None = Query(default=None, description='Название отеля'),
-                level_hotel: str | None = Query(default=None, description='Уровень отеля')
+                level_hotel: str | None = Query(default=None, description='Уровень отеля'),
+                page: int | None = Query(default=1, description='Номер страницы'),
+                per_page: int | None = Query(default=3, description='Количество отелей на странице'),
                 ):
     hotels_ = []
     for hotel in hotels:
@@ -23,17 +30,17 @@ def get_hotels(
             continue
         if title_hotel and hotel['title'] != title_hotel:
             continue
-        if title_hotel and hotel['level'] != level_hotel:
+        if level_hotel and hotel['level'] != level_hotel:
             continue
         hotels_.append(hotel)
-    return hotels_
+
+    p_start = (page-1) * per_page
+    p_end = p_start + per_page
+    return hotels_[p_start:p_end]
 
 
 @router.post("", summary="Добавление отеля")
-def create_hotel(
-        title_hotel: str = Body(embed=True, description='Название нового отеля'),
-        level_hotel: str = Body(embed=True, description='Уровень нового отеля')
-):
+def create_hotel(hotel_data: Hotel):
     global hotels
     if len(hotels) == 0:
         new_id = 0
@@ -43,8 +50,8 @@ def create_hotel(
     hotels.append(
         {
             "id": new_id + 1,
-            "title": title_hotel,
-            "level": level_hotel,
+            "title": hotel_data.title,
+            "level": hotel_data.level,
         }
     )
     return {"status": "Ok"}
@@ -58,17 +65,12 @@ def delete_hotel(id_hotel: int = Path(description="ID отеля для удал
 
 
 @router.put("/{id_hotel}", summary="Полное изменение данных об отеле")
-def update_hotel(
-        id_hotel: int = Path(description="ID обновляемого отеля"),
-        title_hotel: str = Body(description='Название нового отеля'),
-        level_hotel: str = Body(description='Уровень нового отеля')
-
-):
+def update_hotel(id_hotel: int, hotel_data: Hotel):
     global hotels
     for hotel in hotels:
         if hotel["id"] == id_hotel:
-            hotel["title"] = title_hotel
-            hotel["level"] = level_hotel
+            hotel["title"] = hotel_data.title
+            hotel["level"] = hotel_data.level
             return {"status": "Ok"}
     raise HTTPException(status_code=404, detail="Отель не найден")
 
@@ -76,18 +78,13 @@ def update_hotel(
 @router.patch("/{id_hotel}", summary="Частичное изменение данных об отеле",
               description="Подробное описание для чего ручка. <h1>Возможно использовать теги HTML </h1> "
                           "Круто, можно поиграть с ЦВЕТОМ")
-def partial_update_hotel(
-        id_hotel: int = Path(description="ID обновляемого отеля"),
-        title_hotel: str | None = Body(description='Название нового отеля', default=None),
-        level_hotel: str | None = Body(description='Уровень нового отеля', default=None)
-
-):
+def partial_update_hotel(id_hotel: int, hotel_date: HotelUpdate):
     global hotels
     for hotel in hotels:
         if hotel["id"] == id_hotel:
-            if title_hotel is not None:
-                hotel["title"] = title_hotel
-            if level_hotel is not None:
-                hotel["level"] = level_hotel
+            if hotel_date.title is not None:
+                hotel["title"] = hotel_date.title
+            if hotel_date.level is not None:
+                hotel["level"] = hotel_date.level
             return {"status": "Ok"}
     raise HTTPException(status_code=404, detail="Отель не найден")
