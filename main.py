@@ -9,7 +9,7 @@ from hotels import router as router_hotels
 
 
 app = FastAPI(
-    title='Домашнее задание №2',
+    title='Проект ОТЕЛИ',
     debug=True,
     docs_url=None, redoc_url=None)  # Отключаем стандартные пути к документации
 
