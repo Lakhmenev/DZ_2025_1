@@ -1,7 +1,6 @@
 from fastapi import Query, Path, HTTPException, APIRouter
-from schemas.hotels import HotelUpdate, Hotel
-from dependencies import PaginationDep
-
+from src.api.dependencies import PaginationDep
+from src.schemas.hotels import HotelUpdate, Hotel
 
 router = APIRouter(prefix="/hotel", tags=["Отели"])
 

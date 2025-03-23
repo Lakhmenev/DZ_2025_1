@@ -5,7 +5,17 @@ from fastapi.openapi.docs import (
     get_swagger_ui_oauth2_redirect_html,
 )
 from fastapi.staticfiles import StaticFiles
-from hotels import router as router_hotels
+
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))
+
+
+from src.api.hotels import router as router_hotels
+from src.config import settings
+
+
+print(f"{settings.DB_NAME=}")
 
 
 app = FastAPI(
@@ -16,7 +26,7 @@ app = FastAPI(
 app.include_router(router_hotels)  # Подключаем ручки по отелям
 
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
 
 #  Переводим swagger документацию на статические файлы
