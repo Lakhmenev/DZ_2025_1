@@ -1,4 +1,5 @@
 from fastapi import Query, Path, HTTPException, APIRouter
+
 from src.api.dependencies import PaginationDep
 from src.schemas.hotels import HotelUpdate, Hotel
 
