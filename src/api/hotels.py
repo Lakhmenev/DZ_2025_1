@@ -1,6 +1,10 @@
-from fastapi import Query, Path, HTTPException, APIRouter
+from fastapi import Query, Body, Path, HTTPException, APIRouter
+
+from sqlalchemy import insert
 
 from src.api.dependencies import PaginationDep
+from src.database import async_session_maker, engine
+from src.models.hotels import HotelsOrm
 from src.schemas.hotels import HotelUpdate, Hotel
 
 router = APIRouter(prefix="/hotel", tags=["Отели"])
@@ -41,20 +45,29 @@ def get_hotels(
 
 
 @router.post("", summary="Добавление отеля")
-def create_hotel(hotel_data: Hotel):
-    global hotels
-    if len(hotels) == 0:
-        new_id = 0
-    else:
-        new_id = hotels[-1]["id"]
-
-    hotels.append(
-        {
-            "id": new_id + 1,
-            "title": hotel_data.title,
-            "level": hotel_data.level,
+async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
+    "1": {
+       "summary": "Сочи",
+       "value": {
+           "title": "Sochi",
+           "location": "ул. Славы 4",
+       }
+    },
+    "2": {
+        "summary": "Дубай",
+        "value": {
+            "title": "Дубай",
+            "location": "ул. Пушкина 5",
         }
-    )
+    },
+})
+):
+    async with async_session_maker() as session:
+        add_hotel_stmt = insert(HotelsOrm).values(**hotel_data.model_dump())
+        #  Распечатать запрос в консоль для проверки
+        print(add_hotel_stmt.compile(engine, compile_kwargs={"literal_binds": True}))
+        await session.execute(add_hotel_stmt)
+        await session.commit()
     return {"status": "Ok"}
 
 
