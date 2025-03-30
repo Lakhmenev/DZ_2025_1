@@ -13,7 +13,6 @@ router = APIRouter(prefix="/hotel", tags=["Отели"])
 @router.get("", summary="Получаем отели с фильтром или без")
 async def get_hotels(
         pagination: PaginationDep,
-        id: int | None = Query(default=None, description='ID отеля'),
         title: str | None = Query(default=None, description='Название отеля'),
         location: str | None = Query(default=None, description='Адрес отеля'),
  ):
@@ -21,10 +20,11 @@ async def get_hotels(
     async with (async_session_maker() as session):
         # Запрос select  не использует приставку stmt
         query = select(HotelsOrm)
-        if id:
-            query = query.filter_by(id=id)
         if title:
-            query = query.where(HotelsOrm.title.ilike(f"%{title}%"))
+            # 1 вариант
+            # query = query.where(HotelsOrm.title.ilike(f"%{title}%"))
+            #  или 2 вариант
+            query = query.filter(HotelsOrm.title.icontains(title))
         if location:
             query = query.where(HotelsOrm.location.ilike(f"%{location}%"))
 
@@ -33,6 +33,8 @@ async def get_hotels(
             .limit(per_page)
             .offset(per_page * (pagination.page - 1))
         )
+        #  Распечатать запрос в консоль для проверки (в продакшене убираем)
+        print(query.compile(engine, compile_kwargs={"literal_binds": True}))
         result = await session.execute(query)
         hotels = result.scalars().all()
         return hotels
@@ -78,7 +80,7 @@ def update_hotel(id_hotel: int, hotel_data: Hotel):
     for hotel in hotels:
         if hotel["id"] == id_hotel:
             hotel["title"] = hotel_data.title
-            hotel["level"] = hotel_data.level
+            hotel["location"] = hotel_data.level
             return {"status": "Ok"}
     raise HTTPException(status_code=404, detail="Отель не найден")
 
@@ -93,6 +95,6 @@ def partial_update_hotel(id_hotel: int, hotel_date: HotelUpdate):
             if hotel_date.title is not None:
                 hotel["title"] = hotel_date.title
             if hotel_date.level is not None:
-                hotel["level"] = hotel_date.level
+                hotel["location"] = hotel_date.level
             return {"status": "Ok"}
     raise HTTPException(status_code=404, detail="Отель не найден")
