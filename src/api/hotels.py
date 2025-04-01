@@ -1,10 +1,11 @@
 from fastapi import Query, Body, Path, HTTPException, APIRouter
 
-from sqlalchemy import insert, select
+from sqlalchemy import insert
 
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker, engine
 from src.models.hotels import HotelsOrm
+from src.repo.hotels import HotelsRepository
 from src.schemas.hotels import HotelUpdate, Hotel
 
 router = APIRouter(prefix="/hotel", tags=["Отели"])
@@ -17,27 +18,13 @@ async def get_hotels(
         location: str | None = Query(default=None, description='Адрес отеля'),
  ):
     per_page = pagination.per_page or 5
-    async with (async_session_maker() as session):
-        # Запрос select  не использует приставку stmt
-        query = select(HotelsOrm)
-        if title:
-            # 1 вариант
-            # query = query.where(HotelsOrm.title.ilike(f"%{title}%"))
-            #  или 2 вариант
-            query = query.filter(HotelsOrm.title.icontains(title))
-        if location:
-            query = query.where(HotelsOrm.location.ilike(f"%{location}%"))
-
-        query = (
-            query
-            .limit(per_page)
-            .offset(per_page * (pagination.page - 1))
+    async with async_session_maker() as session:
+        return await HotelsRepository(session).get_all(
+            title=title,
+            location=location,
+            limit=per_page,
+            offset=per_page * (pagination.page - 1)
         )
-        #  Распечатать запрос в консоль для проверки (в продакшене убираем)
-        print(query.compile(engine, compile_kwargs={"literal_binds": True}))
-        result = await session.execute(query)
-        hotels = result.scalars().all()
-        return hotels
 
 
 @router.post("", summary="Добавление отеля")
@@ -46,22 +33,22 @@ async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
        "summary": "Сочи",
        "value": {
            "title": "Sochi",
-           "location": "ул. Славы 4",
+           "location": "Сочи, ул. Славы 4",
        }
     },
     "2": {
         "summary": "Дубай",
         "value": {
-            "title": "Дубай",
-            "location": "ул. Пушкина 5",
+            "title": "Stars",
+            "location": "Дубай, ул. Шейха 5",
         }
     },
 })
 ):
     async with async_session_maker() as session:
-        add_hotel_stmt = insert(HotelsOrm).values(**hotel_data.model_dump())
+        # add_hotel_stmt = insert(HotelsOrm).values(**hotel_data.model_dump())
         #  Распечатать запрос в консоль для проверки (в продакшене убираем)
-        print(add_hotel_stmt.compile(engine, compile_kwargs={"literal_binds": True}))
+        # print(add_hotel_stmt.compile(engine, compile_kwargs={"literal_binds": True}))
         await session.execute(add_hotel_stmt)
         await session.commit()
     return {"status": "Ok"}
