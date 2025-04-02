@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, insert
 
 from src.models.hotels import HotelsOrm
 from src.repo.base import BaseRepository
