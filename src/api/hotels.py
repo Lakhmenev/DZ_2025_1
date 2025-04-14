@@ -9,7 +9,7 @@ from src.schemas.hotels import HotelUpdate, Hotel
 router = APIRouter(prefix="/hotel", tags=["Отели"])
 
 
-@router.get("", summary="Получаем отели с фильтром или без")
+@router.get("", summary="Получаем отели с фильтром или без с пагинацией")
 async def get_hotels(
         pagination: PaginationDep,
         title: str | None = Query(default=None, description='Название отеля'),
@@ -23,6 +23,15 @@ async def get_hotels(
             limit=per_page,
             offset=per_page * (pagination.page - 1)
         )
+
+
+@router.get("/{id_hotel}", summary="Получение отеля по id")
+async def get_hotel(id_hotel: int):
+    async with async_session_maker() as session:
+        hotel = await HotelsRepository(session).get_one_or_none(id=id_hotel)
+        if not hotel:
+            raise HTTPException(status_code=404, detail="Отель не найден")
+    return {"status": "Ok", "data": hotel}
 
 
 @router.post("", summary="Добавление отеля")
