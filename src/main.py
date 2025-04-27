@@ -11,10 +11,11 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 
 from src.api.hotels import router as router_hotels
-from src.config import settings
+from src.api.auth import router as router_auth
+# from src.config import settings
 
 
-print(f'{settings.DB_URL=}')
+# print(f'{settings.DB_URL=}')
 
 
 app = FastAPI(
@@ -22,6 +23,7 @@ app = FastAPI(
     debug=True,
     docs_url=None, redoc_url=None)  # Отключаем стандартные пути к документации
 
+app.include_router(router_auth)  # Подключаем ручки по авторизации
 app.include_router(router_hotels)  # Подключаем ручки по отелям
 
 
