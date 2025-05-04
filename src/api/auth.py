@@ -1,14 +1,47 @@
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, HTTPException, Response, Request
 
-from passlib.context import CryptContext
 
 from src.database import async_session_maker
 from src.repo.users import UsersRepository
-from src.schemas.users import UserRequestAdd, UserAdd
+from src.schemas.users import UserRequestAdd, UserAdd, UserLogin
+from src.services.auth import AuthService
 
 router = APIRouter(prefix="/auth", tags=["Авторизация и аутентификация"])
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+@router.post("/login")
+async def login_user(
+        response: Response,
+        data: UserLogin = Body(openapi_examples={
+            "1": {
+                "summary": "user1",
+                "value": {
+                    "email": "email1@gmail.com",
+                    "password": "pass1",
+                }
+            },
+            "2": {
+                "summary": "user2",
+                "value": {
+                    "email": "email2@gmail.com",
+                    "password": "pass2",
+                }
+            },
+        }),
+):
+    async with async_session_maker() as session:
+        user = await UsersRepository(session).get_user_with_hashed_password(email=data.email)
+        # if user is None:
+        #     raise HTTPException(status_code=401, detail="Пользователь с таким email не зарегистрирован")
+        # if not AuthService().verify_password(data.password, user.hashed_password):
+        #     raise HTTPException(status_code=401, detail="Неверный пароль")
+        #   Чтобы не делать подсказку, что именно пароль или email не верный, можно сделать так:
+        if (user is None) or (not AuthService().verify_password(data.password, user.hashed_password)):
+            raise HTTPException(status_code=401, detail="Неверный пароль или email")
+
+        access_token = AuthService().create_access_token({"user_id": user.id})
+        response.set_cookie("access_token", access_token)
+        return {"access_token": access_token}
 
 
 @router.post("/register")
@@ -20,8 +53,8 @@ async def register_user(
                     "email": "email1@gmail.com",
                     "password": "pass1",
                     "nickname": "nick1",
-                    "lastname": "last1",
-                    "firstname": "first1"
+                    "firstname": "firstname1",
+                    "lastname": "lastname1"
                 }
             },
             "2": {
@@ -30,14 +63,13 @@ async def register_user(
                     "email": "email2@gmail.com",
                     "password": "pass2",
                     "nickname": "nick2",
-                    "lastname": "last2",
-                    "firstname": "first2"
-
+                    "firstname": "firstname2",
+                    "lastname": "lastname3"
                 }
             },
         })
 ):
-    hashed_password = pwd_context.hash(data.password)
+    hashed_password = AuthService().hash_password(data.password)
     new_user_data = UserAdd(email=data.email,
                             hashed_password=hashed_password,
                             nickname=data.nickname,
@@ -45,7 +77,15 @@ async def register_user(
                             firstname=data.firstname
                             )
     async with async_session_maker() as session:
-
         await UsersRepository(session).add(new_user_data)
         await session.commit()
     return {"status": "OK"}
+
+
+@router.get("/only_auth")
+async def only_auth(
+        request: Request,
+):
+    access_token = request.cookies.get("access_token")
+    print(access_token)
+    pass
