@@ -5,7 +5,7 @@ class RoomAddRequest(BaseModel):
     title: str = Field(description='Название номера')
     description: str = Field(None, description='Описание номера')
     price: int = Field(description='Цена номера')
-    quantity: int = Field(description='Количество мест')
+    quantity: int = Field(description='Количество номеров этого типа')
 
 
 class RoomAdd(BaseModel):
@@ -13,7 +13,7 @@ class RoomAdd(BaseModel):
     title: str = Field(description='Название номера')
     description: str | None = Field(None, description='Описание номера')
     price: int = Field(description='Цена номера')
-    quantity: int = Field(description="Количество мест")
+    quantity: int = Field(description="Количество номеров этого типа")
 
 
 class Room(RoomAdd):
@@ -24,7 +24,7 @@ class RoomPatchRequest(BaseModel):
     title: str | None = Field(None, description='Название номера')
     description: str | None = Field(None, description='Описание номера')
     price: int | None = Field(None, description='Цена номера')
-    quantity: int | None = Field(None, description='Количество мест')
+    quantity: int | None = Field(None, description='Количество номеров этого типа')
 
 
 class RoomPatch(BaseModel):
@@ -32,4 +32,4 @@ class RoomPatch(BaseModel):
     title: str | None = Field(None, description='Название номера')
     description: str | None = Field(None, description='Описание номера')
     price: int | None = Field(None, description='Цена номера')
-    quantity: int | None = Field(None, description='Количество мест')
+    quantity: int | None = Field(None, description='Количество номеров этого типа')

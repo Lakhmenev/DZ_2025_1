@@ -13,7 +13,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from src.api.hotels import router as router_hotels
 from src.api.rooms import router as router_rooms
 from src.api.auth import router as router_auth
-
+from src.api.bookings import router as router_bookings
 # from src.config import settings
 
 
@@ -28,6 +28,7 @@ app = FastAPI(
 app.include_router(router_auth)  # Подключаем ручки по авторизации
 app.include_router(router_hotels)  # Подключаем ручки по отелям
 app.include_router(router_rooms)  # Подключаем ручки по комнатам
+app.include_router(router_bookings) # Подключаем ручки по бронированиям
 
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
