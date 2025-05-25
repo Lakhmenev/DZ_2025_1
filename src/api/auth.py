@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body, HTTPException, Response
 
-from src.api.dependencies import UserIDDep, DBDep
+from src.api.dependencies import UserIdDep, DBDep
 from src.schemas.users import UserRequestAdd, UserAdd, UserLogin
 from src.services.auth import AuthService
 
@@ -83,7 +83,7 @@ async def register_user(
 
 @router.get("/me")
 async def get_me(
-        user_id: UserIDDep,
+        user_id: UserIdDep,
         db: DBDep,
 ):
     user = await db.users.get_one_or_none(id=user_id)

@@ -6,6 +6,16 @@ from src.schemas.bookings import BookingAddRequest, BookingAdd
 router = APIRouter(prefix="/bookings", tags=["Бронирования"])
 
 
+@router.get("")
+async def get_bookings(db: DBDep):
+    return await db.bookings.get_all()
+
+
+@router.get("/me")
+async def get_my_bookings(user_id: UserIdDep, db: DBDep):
+    return await db.bookings.get_filtered(user_id=user_id)
+
+
 @router.post("")
 async def add_booking(
         user_id: UserIdDep,
@@ -17,7 +27,8 @@ async def add_booking(
     _booking_data = BookingAdd(
         user_id=user_id,
         price=room_price,
-        **booking_data.dict(),
+        **booking_data.model_dump(),  # вместо model_dump() можно использовать dict(),
+                                      # но тогда нужно указывать все аргументы
     )
     booking = await db.bookings.add(_booking_data)
     await db.commit()
