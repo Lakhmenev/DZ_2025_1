@@ -11,6 +11,8 @@ from src.models.hotels import HotelsOrm   # для импорта модели �
 from src.models.rooms import RoomsOrm   # для импорта модели обязательно делаем импорт всех моделей базы данных
 from src.models.users import UsersOrm   # для импорта модели обязательно делаем импорт всех моделей базы данных
 from src.models.bookings import BookingsOrm   # для импорта модели обязательно делаем импорт всех моделей базы данных
+from src.models.facilities import FacilitiesOrm
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
