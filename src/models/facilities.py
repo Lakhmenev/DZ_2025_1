@@ -1,6 +1,7 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, ForeignKey
 from src.database import Base
+
 
 class FacilitiesOrm(Base):
     __tablename__ = 'facilities'
@@ -8,6 +9,11 @@ class FacilitiesOrm(Base):
     #  Mapped - это аннотация, которая используется для указания типа столбца в таблице базы данных и его свойства.
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(100))
+
+    rooms: Mapped[list["RoomsOrm"]] = relationship(
+        back_populates="facilities",
+        secondary="rooms_facilities",
+    )
 
 
 class RoomsFacilitiesOrm(Base):

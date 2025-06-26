@@ -48,6 +48,7 @@ class BaseRepository:
             .filter_by(**filter_by)
             .values(**data.model_dump(exclude_unset=exclude_unset))
         )
+        print(update_stmt.compile(compile_kwargs={"literal_binds": True}))
         await self.session.execute(update_stmt)
 
     async def delete(self, **filter_by) -> None:
