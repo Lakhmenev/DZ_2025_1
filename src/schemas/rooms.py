@@ -6,21 +6,23 @@ class RoomAddRequest(BaseModel):
     description: str = Field(None, description='Описание номера')
     price: int = Field(description='Цена номера')
     quantity: int = Field(description='Количество номеров этого типа')
-    facilities_ids: list[int] | None = Field(None, description='ID удобств')
+    facilities_ids: list[int] | None = []
 
 
 class RoomAdd(BaseModel):
     hotel_id: int = Field(description='id отеля')
     title: str = Field(description='Название номера')
     description: str | None = Field(None, description='Описание номера')
-    price: int = Field(description='Цена номера')
-    quantity: int = Field(description="Количество номеров этого типа")
+    price: int | None = Field(None, description='Цена номера')
+    quantity: int | None = Field(None, description="Количество номеров этого типа")
+    facilities_ids: list[int] | None = []
 
 
 class Room(RoomAdd):
     id: int = Field(description='id комнаты')
 
     model_config = ConfigDict(from_attributes=True)
+
 
 class RoomPatchRequest(BaseModel):
     title: str | None = Field(None, description='Название номера')
