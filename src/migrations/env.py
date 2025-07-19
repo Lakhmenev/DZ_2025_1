@@ -7,11 +7,14 @@ from alembic import context
 
 from src.config import settings
 from src.database import Base
-from src.models.hotels import HotelsOrm   # для импорта модели обязательно делаем импорт всех моделей базы данных
-from src.models.rooms import RoomsOrm   # для импорта модели обязательно делаем импорт всех моделей базы данных
-from src.models.users import UsersOrm   # для импорта модели обязательно делаем импорт всех моделей базы данных
-from src.models.bookings import BookingsOrm   # для импорта модели обязательно делаем импорт всех моделей базы данных
-from src.models.facilities import FacilitiesOrm
+from src.models import *
+
+# строка from src.models import * -- заменяет на импорт всех моделей базы данных (код ниже уже не нужен)
+# from src.models.hotels import HotelsOrm   # для импорта модели обязательно делаем импорт всех моделей базы данных
+# from src.models.rooms import RoomsOrm   # для импорта модели обязательно делаем импорт всех моделей базы данных
+# from src.models.users import UsersOrm   # для импорта модели обязательно делаем импорт всех моделей базы данных
+# from src.models.bookings import BookingsOrm   # для импорта модели обязательно делаем импорт всех моделей базы данных
+# from src.models.facilities import FacilitiesOrm
 
 
 # this is the Alembic Config object, which provides

@@ -1,45 +1,45 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
-from src.schemas.facilities import Facility
+from src.schemas.facilities import FacilityDTO
 
 
-class RoomAddRequest(BaseModel):
-    title: str = Field(description='Название номера')
-    description: str = Field(None, description='Описание номера')
-    price: int = Field(description='Цена номера')
-    quantity: int = Field(description='Количество номеров этого типа')
+class RoomAddRequestDTO(BaseModel):
+    title: str
+    description: str | None = None
+    price: int
+    quantity: int
     facilities_ids: list[int] = []
 
 
-class RoomAdd(BaseModel):
-    hotel_id: int = Field(description='id отеля')
-    title: str = Field(description='Название номера')
-    description: str | None = Field(None, description='Описание номера')
-    price: int | None = Field(None, description='Цена номера')
-    quantity: int | None = Field(None, description="Количество номеров этого типа")
+class RoomAddDTO(BaseModel):
+    hotel_id: int
+    title: str
+    description: str | None = None
+    price: int
+    quantity: int
 
 
-class Room(RoomAdd):
-    id: int = Field(description='id комнаты')
+class RoomDTO(RoomAddDTO):
+    id: int
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class RoomWithRels(Room):
-    facilities: list[Facility] = Field()
+class RoomWithRelsDTO(RoomDTO):
+    facilities: list[FacilityDTO]
 
 
-class RoomPatchRequest(BaseModel):
-    title: str | None = Field(None, description='Название номера')
-    description: str | None = Field(None, description='Описание номера')
-    price: int | None = Field(None, description='Цена номера')
-    quantity: int | None = Field(None, description='Количество номеров этого типа')
+class RoomPatchRequestDTO(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    price: int | None = None
+    quantity: int | None = None
     facilities_ids: list[int] = []
 
 
-class RoomPatch(BaseModel):
-    hotel_id: int | None = Field(None, description='id отеля')
-    title: str | None = Field(None, description='Название номера')
-    description: str | None = Field(None, description='Описание номера')
-    price: int | None = Field(None, description='Цена номера')
-    quantity: int | None = Field(None, description='Количество номеров этого типа')
+class RoomPatchDTO(BaseModel):
+    hotel_id: int | None = None
+    title: str | None = None
+    description: str | None = None
+    price: int | None = None
+    quantity: int | None = None

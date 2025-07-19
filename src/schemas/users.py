@@ -1,32 +1,22 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
-class UserLogin(BaseModel):
-    email: EmailStr = Field(description='Эл.почта пользователя')
-    password: str = Field(description="Пароль пользователя в чистом виде")
+class UserRequestAddDTO(BaseModel):
+    email: EmailStr
+    password: str
 
 
-class UserRequestAdd(UserLogin):
-    nickname: str = Field(description='Никнейм пользователя')
-    firstname: str = Field(description='Фамилия пользователя')
-    lastname: str = Field(description='Имя пользователя')
+class UserAddDTO(BaseModel):
+    email: EmailStr
+    hashed_password: str
 
 
-class UserAdd(BaseModel):
-    email: EmailStr = Field(description='Эл.почта пользователя')
-    hashed_password: str = Field(description="Хеш пароля пользователя")
-    nickname: str = Field(description='Никнейм пользователя')
-    firstname: str = Field(description='Фамилия пользователя')
-    lastname: str = Field(description='Имя пользователя')
+class UserDTO(BaseModel):
+    id: int
+    email: EmailStr
+
+    model_config = ConfigDict(from_attributes=True)
 
 
-class User(BaseModel):
-    id: int = Field(description='id пользователя')
-    email: EmailStr = Field(description='Эл.почта пользователя')
-    nickname: str = Field(description='Никнейм пользователя')
-    firstname: str = Field(description='Фамилия пользователя')
-    lastname: str = Field(description='Имя пользователя')
-
-
-class UserWithHashedPassword(User):
-    hashed_password: str = Field(description="Хеш пароля пользователя")
+class UserWithHashedPassword(UserDTO):
+    hashed_password: str

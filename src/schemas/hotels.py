@@ -1,18 +1,15 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
-# Модель на добавление
-class HotelAdd(BaseModel):
-    title: str = Field(description='Название отеля')
-    location: str = Field(description='Адрес отеля')
+class HotelAddDTO(BaseModel):
+    title: str
+    location: str
 
 
-# Класс отеля для реализации мапинга в БД и для сериализации в json
-# Модель на чтение
-class Hotel(HotelAdd):
-    id: int = Field(description='ID отеля')
+class HotelDTO(HotelAddDTO):
+    id: int
 
 
-class HotelUpdate(BaseModel):
-    title: str | None = Field(None, description='Название отеля')
-    location: str | None = Field(None, description='Адрес отеля')
+class HotelPatchDTO(BaseModel):
+    title: str | None = None
+    location: str | None = None
